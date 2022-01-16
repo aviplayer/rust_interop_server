@@ -1,5 +1,5 @@
 use std::ffi::{CString};
-use std::os::raw::{c_char, c_int};
+use std::os::raw::{c_char};
 use hyper::StatusCode;
 use crate::context::{Context};
 use crate::{Response, utils};

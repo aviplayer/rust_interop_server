@@ -31,7 +31,6 @@ fn main() {
                 CString::from_vec_unchecked(res).into_raw()
             }
         }
-
         get(uri_get, callback_get);
         post(uri_post, callback_post);
         println!("server is starting ....");

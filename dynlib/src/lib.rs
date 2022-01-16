@@ -3,7 +3,7 @@ mod context;
 mod handlers;
 mod utils;
 
-use std::os::raw::{c_char, c_int, c_short};
+use std::os::raw::{c_char};
 use async_ffi::FutureExt;
 use lazy_static::lazy_static;
 use tokio::runtime::Runtime;
@@ -14,7 +14,7 @@ use hyper::server::Server;
 use crate::context::{AppState, Error};
 use crate::router::{Router};
 use futures::lock::Mutex;
-use crate::handlers::{create_body_handler, create_param_handler, create_test_handler};
+use crate::handlers::{create_body_handler, create_param_handler};
 
 
 lazy_static! {
