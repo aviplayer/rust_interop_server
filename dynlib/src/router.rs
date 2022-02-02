@@ -3,7 +3,7 @@ use futures::future::Future;
 use hyper::{Method, Request, StatusCode};
 use route_recognizer::{Params, Router as InternalRouter};
 use std::collections::HashMap;
-use crate::{AppState, Error, ROUTER};
+use crate::{AppState, Error, ROUTER, UriHandler};
 use crate::context::{Context};
 
 #[async_trait]
@@ -50,7 +50,7 @@ impl Router {
         self.method_map
             .entry(Method::POST)
             .or_insert_with(InternalRouter::new)
-            .add(path, handler)
+            .add(path, handler);
     }
 
     pub fn route(&self, path: &str, method: &Method) -> RouterMatch<'_> {

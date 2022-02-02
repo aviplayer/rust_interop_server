@@ -1,9 +1,12 @@
 use std::ffi::{CString};
 use std::os::raw::{c_char};
 use hyper::StatusCode;
+use lazy_static::lazy_static;
 use crate::context::{Context};
 use crate::{Response, utils};
 use crate::router::Handler;
+
+static  mut SIMPLE_CACHE: Vec<String> = vec![];
 
 pub fn create_param_handler(callback: extern "C" fn(*mut c_char) -> *mut c_char) ->
 Box<dyn Handler> {
@@ -21,7 +24,12 @@ Box<dyn Handler> {
             CString::from_raw(res)
         };
         match res_c_str.into_string() {
-            Ok(res_str) => res_str,
+            Ok(res_str) => unsafe {
+                println!("Get response is {}", res_str);
+                let res = res_str.clone();
+                SIMPLE_CACHE.push( res_str);
+                res
+            },
             Err(err) => {
                 eprint!("Got an error while parsing res {} ", err);
                 panic!("{}", err);
@@ -35,7 +43,7 @@ pub fn create_body_handler(callback: extern "C" fn(*mut c_char) -> *mut c_char) 
 Box<dyn Handler> {
     let fun = move |mut ctx: Context| async move {
         let body: String = match ctx.body_json().await {
-            Ok(v) => v,
+            Ok(res_json) => res_json,
             Err(e) => {
                 return Response::builder()
                     .status(StatusCode::BAD_REQUEST)
@@ -55,8 +63,12 @@ hyper::Response<hyper::Body> {
     };
     let res_raw = callback(response_raw);
     let res = utils::c_chars_to_string(res_raw);
+    let res_to_return = res.clone();
+    unsafe {
+        SIMPLE_CACHE.push(res);
+    }
     Response::builder()
         .status(StatusCode::OK)
-        .body(res.into())
+        .body(res_to_return.into())
         .unwrap()
 }

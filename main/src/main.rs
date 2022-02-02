@@ -9,6 +9,8 @@ fn main() {
         let uri_post = CString::from_vec_unchecked(b"/body"
             .to_vec()).into_raw();
 
+
+
         extern "C" fn callback_get(name: *mut c_char) -> *mut c_char {
             let c_name =
                 unsafe {
@@ -31,11 +33,24 @@ fn main() {
                 CString::from_vec_unchecked(res).into_raw()
             }
         }
-        get(uri_get, callback_get);
-        post(uri_post, callback_post);
+        let mut routes = vec![];
+        routes.push(KRouter{
+            method: CString::from_vec_unchecked(b"get"
+                .to_vec()).into_raw(),
+            uri: uri_get,
+            handler: callback_get
+        });
+
+        routes.push(KRouter{
+            method: CString::from_vec_unchecked(b"post"
+                .to_vec()).into_raw(),
+            uri: uri_post,
+            handler: callback_post
+        });
+
         println!("server is starting ....");
         let addr_bytes = b"127.0.0.1:8087".to_vec();
         let c_ctring = CString::from_vec_unchecked(addr_bytes);
-        start_rust_server(c_ctring.into_raw())
+        start_rust_server(c_ctring.into_raw(), routes.as_mut_ptr(), 2)
     }
 }
